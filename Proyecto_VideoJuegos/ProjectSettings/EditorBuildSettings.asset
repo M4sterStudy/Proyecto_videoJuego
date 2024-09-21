@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: "Assets/Scenes/Dayan/Interfaz/Men\xFA.unity"
+    guid: b1a5a599a4a603b45a22129cb3f47ed8
+  - enabled: 1
+    path: Assets/Scenes/Dayan/Interfaz/IntefazGameplay.unity
+    guid: 3b1b63ea71e1a0b40a9fc420c81645ae
   m_configObjects: {}
