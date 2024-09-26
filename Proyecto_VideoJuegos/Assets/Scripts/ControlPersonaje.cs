@@ -18,9 +18,7 @@ public class ControlPersonaje : MonoBehaviour
     // Variables del nuevo Input System
     private Vector2 moveInput; 
     private bool jumpInput;    
-    private bool isRunning;    
-
-    private float speed;       
+    private bool isRunning;          
 
     private Player inputActions; // Clase generada por el Input System
 
@@ -70,8 +68,8 @@ public class ControlPersonaje : MonoBehaviour
 
         // Detectar el movimiento en las direcciones: adelante, atrás, izquierda, derecha
         bool isMovingBackwards = moveInput.y < 0;
-        bool isMovingLeft = moveInput.x < 0;
-        bool isMovingRight = moveInput.x > 0;
+        bool isMovingLeft = moveInput.x < -0.5f;
+        bool isMovingRight = moveInput.x > 0.5f;
 
         // Actualizamos la animación: "Speed"
         if (moveInput.magnitude > 0) // Si el personaje se está moviendo
@@ -130,39 +128,57 @@ public class ControlPersonaje : MonoBehaviour
         if (jumpInput && isGrounded)
         {
             isGrounded = false;
+            // Determinar la dirección y el impulso del salto
+            Vector3 jumpDirection = Vector3.up; // Impulso inicial hacia arriba
+
+            float jumpImpulse = 0f; // Impulso horizontal adicional para saltos de esquiva
+            float currentJumpHeight = jumpHeight; // Altura del salto
+
+            if (moveInput.magnitude > 0) // Si el personaje está en movimiento
+            {
+                if (isMovingBackwards) // Esquivar hacia atrás
+                {
+                    jumpDirection += -transform.forward; // Añadir impulso hacia atrás
+                    jumpImpulse = 5f; // La velocidad de esquiva hacia atrás
+                    currentJumpHeight = jumpHeight * 0.5f; // Altura más baja para la esquiva
+                    animator.SetFloat("JumpDirection", -1f); // Animación de esquiva hacia atrás
+                }
+                else if (isMovingLeft) // Esquivar hacia la izquierda
+                {
+                    jumpDirection += -transform.right; 
+                    jumpImpulse = 5f;
+                    currentJumpHeight = jumpHeight * 0.5f;
+                    animator.SetFloat("JumpDirection", 2f); 
+                }
+                else if (isMovingRight) // Esquivar hacia la derecha
+                {
+                    jumpDirection += transform.right; 
+                    jumpImpulse = 5f;
+                    currentJumpHeight = jumpHeight * 0.5f;
+                    animator.SetFloat("JumpDirection", -2f); 
+                }
+                else // Esquivar hacia adelante
+                {
+                    jumpDirection += transform.forward; 
+                    jumpImpulse = 5f;
+                    currentJumpHeight = jumpHeight * 0.5f;
+                    animator.SetFloat("JumpDirection", 1f); 
+                }
+            }
+            else
+            {
+                // Saltar desde Idle
+                animator.SetFloat("JumpDirection", 0f); // Animación de salto Idle
+            }
+
+            // Actualizar parámetros del Animator
             animator.SetBool("isJumping", true);
-            animator.SetFloat("JumpDirection", 0f);
 
-            if (isMovingBackwards) // Hacia atrás
-            {
-                isGrounded = false;
-                animator.SetBool("isJumping", true);
-                animator.SetFloat("JumpDirection", -1f);
-            }
-            else if (isMovingLeft) // Hacia la izquierda
-            {
-                isGrounded = false;
-                animator.SetBool("isJumping", true);
-                animator.SetFloat("JumpDirection", 2f);
-            }
-            else if (isMovingRight) // Hacia la derecha
-            {
-                isGrounded = false;
-                animator.SetBool("isJumping", true);
-                animator.SetFloat("JumpDirection", -2f);
-            }
-            else if (moveInput.magnitude > 0) // Hacia adelante
-            {
-                isGrounded = false;
-                animator.SetBool("isJumping", true);
-                animator.SetFloat("JumpDirection", 1f);
-            }
+            // Aplicar impulso horizontal para esquivar
+            controller.Move(jumpDirection.normalized * jumpImpulse * Time.deltaTime);
 
-            // Actualizamos los parámetros
-             // Indicar que está saltando
-
-            // Aplicar la física del salto
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            // Aplicar el impulso de salto vertical
+            velocity.y = Mathf.Sqrt(currentJumpHeight * -2f * gravity);
         }
 
         // Si está en el suelo, regresar el estado de salto
