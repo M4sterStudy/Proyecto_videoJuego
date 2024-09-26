@@ -7,6 +7,8 @@ public class ControlPersonaje : MonoBehaviour
 {
     public CharacterController controller;
     public Animator animator;
+    public Transform cameraTransform;
+
     public float walkSpeed = 2f;
     public float runSpeed = 6f;
     public float jumpHeight = 1.5f;
@@ -16,9 +18,9 @@ public class ControlPersonaje : MonoBehaviour
     private bool isGrounded;
 
     // Variables del nuevo Input System
-    private Vector2 moveInput; 
-    private bool jumpInput;    
-    private bool isRunning;          
+    private Vector2 moveInput;
+    private bool jumpInput;
+    private bool isRunning;
 
     private Player inputActions; // Clase generada por el Input System
 
@@ -56,75 +58,79 @@ public class ControlPersonaje : MonoBehaviour
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f;
+            velocity.y = -2f; // Asegura que el personaje se mantenga en el suelo
         }
 
         // Determinamos la velocidad de movimiento basado en el estado de correr
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // Convertimos el input de movimiento en un vector 3D
-        Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
-        controller.Move(move * currentSpeed * Time.deltaTime);
+        // Convertimos el input de movimiento en un vector 3D basado en la cámara
+        Vector3 move = cameraTransform.TransformDirection(moveInput.x, 0, moveInput.y);
+        move.y = 0; // Mantener el movimiento en el plano horizontal
 
+        // Movimiento lateral y hacia adelante
+        Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed; // Movimiento hacia adelante y atrás
+        Vector3 lateralMove = moveInput.x * transform.right * currentSpeed; // Movimiento lateral
+
+        // Solo rotar hacia adelante cuando el movimiento es hacia adelante
+        if (moveInput.magnitude > 0)
+        {
+            // Si se mueve hacia adelante (moveInput.y > 0) o hacia atrás (no rotar al ir hacia atrás)
+            if (moveInput.y > 0) // Solo rota hacia adelante
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(move);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            }
+        }
+
+        // Mueve al personaje hacia adelante y lateralmente
+        controller.Move((forwardMove + lateralMove) * Time.deltaTime); // Combina ambos movimientos
+
+        // Actualizamos la animación "Speed"
+        UpdateAnimation();
+
+        // Manejar el salto
+        HandleJump();
+
+        // Aplicamos gravedad
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void UpdateAnimation()
+    {
         // Detectar el movimiento en las direcciones: adelante, atrás, izquierda, derecha
         bool isMovingBackwards = moveInput.y < 0;
         bool isMovingLeft = moveInput.x < -0.5f;
         bool isMovingRight = moveInput.x > 0.5f;
 
-        // Actualizamos la animación: "Speed"
         if (moveInput.magnitude > 0) // Si el personaje se está moviendo
         {
             if (isMovingBackwards)  // Movimiento hacia atrás
             {
-                if (isRunning)
-                {
-                    animator.SetFloat("Speed", -2f); // Correr hacia atrás
-                }
-                else
-                {
-                    animator.SetFloat("Speed", -1f); // Caminar hacia atrás
-                }
+                animator.SetFloat("Speed", isRunning ? -2f : -1f); // Correr o caminar hacia atrás
             }
             else if (isMovingLeft)  // Movimiento hacia la izquierda
             {
-                if (isRunning)
-                {
-                    animator.SetFloat("Speed", 4f); // Correr hacia la izquierda
-                }
-                else
-                {
-                    animator.SetFloat("Speed", 3f); // Caminar hacia la izquierda
-                }
+                animator.SetFloat("Speed", isRunning ? 4f : 3f); // Correr o caminar hacia la izquierda
             }
             else if (isMovingRight)  // Movimiento hacia la derecha
             {
-                if (isRunning)
-                {
-                    animator.SetFloat("Speed", 6f); // Correr hacia la derecha
-                }
-                else
-                {
-                    animator.SetFloat("Speed", 5f); // Caminar hacia la derecha
-                }
+                animator.SetFloat("Speed", isRunning ? 6f : 5f); // Correr o caminar hacia la derecha
             }
             else  // Movimiento hacia adelante
             {
-                if (isRunning)
-                {
-                    animator.SetFloat("Speed", 2f); // Correr hacia adelante
-                }
-                else
-                {
-                    animator.SetFloat("Speed", 1f); // Caminar hacia adelante
-                }
+                animator.SetFloat("Speed", isRunning ? 2f : 1f); // Correr o caminar hacia adelante
             }
         }
         else
         {
             animator.SetFloat("Speed", 0f); // Quieto (Idle)
         }
+    }
 
-        // Salto
+    private void HandleJump()
+    {
         if (jumpInput && isGrounded)
         {
             isGrounded = false;
@@ -133,6 +139,11 @@ public class ControlPersonaje : MonoBehaviour
 
             float jumpImpulse = 0f; // Impulso horizontal adicional para saltos de esquiva
             float currentJumpHeight = jumpHeight; // Altura del salto
+
+            // Detectar si el personaje está en movimiento
+            bool isMovingBackwards = moveInput.y < 0;
+            bool isMovingLeft = moveInput.x < -0.5f;
+            bool isMovingRight = moveInput.x > 0.5f;
 
             if (moveInput.magnitude > 0) // Si el personaje está en movimiento
             {
@@ -145,24 +156,24 @@ public class ControlPersonaje : MonoBehaviour
                 }
                 else if (isMovingLeft) // Esquivar hacia la izquierda
                 {
-                    jumpDirection += -transform.right; 
+                    jumpDirection += -transform.right;
                     jumpImpulse = 5f;
                     currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", 2f); 
+                    animator.SetFloat("JumpDirection", 2f);
                 }
                 else if (isMovingRight) // Esquivar hacia la derecha
                 {
-                    jumpDirection += transform.right; 
+                    jumpDirection += transform.right;
                     jumpImpulse = 5f;
                     currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", -2f); 
+                    animator.SetFloat("JumpDirection", -2f);
                 }
                 else // Esquivar hacia adelante
                 {
-                    jumpDirection += transform.forward; 
+                    jumpDirection += transform.forward;
                     jumpImpulse = 5f;
                     currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", 1f); 
+                    animator.SetFloat("JumpDirection", 1f);
                 }
             }
             else
@@ -178,7 +189,7 @@ public class ControlPersonaje : MonoBehaviour
             controller.Move(jumpDirection.normalized * jumpImpulse * Time.deltaTime);
 
             // Aplicar el impulso de salto vertical
-            velocity.y = Mathf.Sqrt(currentJumpHeight * -2f * gravity);
+            velocity.y = Mathf.Sqrt(currentJumpHeight * -2f * gravity); // Calcular el salto
         }
 
         // Si está en el suelo, regresar el estado de salto
@@ -186,10 +197,6 @@ public class ControlPersonaje : MonoBehaviour
         {
             animator.SetBool("isJumping", false); // Regresar a no saltar
         }
-
-        // Aplicamos gravedad
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
     }
 
     // Función que se llama cuando se recibe el input de movimiento

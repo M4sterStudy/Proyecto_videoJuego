@@ -53,6 +53,15 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""camara"",
+                    ""type"": ""Value"",
+                    ""id"": ""032e624b-b0d2-42ea-9cd7-a7650fba51bd"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -165,6 +174,28 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""action"": ""correr"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8647471f-936c-4211-879b-1c84dd64dcc1"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""camara"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1423fe7b-d970-4e19-a899-b45a1dccd641"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""camara"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -176,6 +207,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
         m_personaje_movimiento = m_personaje.FindAction("movimiento", throwIfNotFound: true);
         m_personaje_saltar = m_personaje.FindAction("saltar", throwIfNotFound: true);
         m_personaje_correr = m_personaje.FindAction("correr", throwIfNotFound: true);
+        m_personaje_camara = m_personaje.FindAction("camara", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -240,6 +272,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
     private readonly InputAction m_personaje_movimiento;
     private readonly InputAction m_personaje_saltar;
     private readonly InputAction m_personaje_correr;
+    private readonly InputAction m_personaje_camara;
     public struct PersonajeActions
     {
         private @Player m_Wrapper;
@@ -247,6 +280,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
         public InputAction @movimiento => m_Wrapper.m_personaje_movimiento;
         public InputAction @saltar => m_Wrapper.m_personaje_saltar;
         public InputAction @correr => m_Wrapper.m_personaje_correr;
+        public InputAction @camara => m_Wrapper.m_personaje_camara;
         public InputActionMap Get() { return m_Wrapper.m_personaje; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -265,6 +299,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @correr.started += instance.OnCorrer;
             @correr.performed += instance.OnCorrer;
             @correr.canceled += instance.OnCorrer;
+            @camara.started += instance.OnCamara;
+            @camara.performed += instance.OnCamara;
+            @camara.canceled += instance.OnCamara;
         }
 
         private void UnregisterCallbacks(IPersonajeActions instance)
@@ -278,6 +315,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @correr.started -= instance.OnCorrer;
             @correr.performed -= instance.OnCorrer;
             @correr.canceled -= instance.OnCorrer;
+            @camara.started -= instance.OnCamara;
+            @camara.performed -= instance.OnCamara;
+            @camara.canceled -= instance.OnCamara;
         }
 
         public void RemoveCallbacks(IPersonajeActions instance)
@@ -300,5 +340,6 @@ public partial class @Player: IInputActionCollection2, IDisposable
         void OnMovimiento(InputAction.CallbackContext context);
         void OnSaltar(InputAction.CallbackContext context);
         void OnCorrer(InputAction.CallbackContext context);
+        void OnCamara(InputAction.CallbackContext context);
     }
 }
