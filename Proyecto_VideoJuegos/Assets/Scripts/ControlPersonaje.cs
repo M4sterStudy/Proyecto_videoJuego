@@ -2,17 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class ControlPersonaje : MonoBehaviour
 {
+    [Header ("GameObjects")]
     public CharacterController controller;
     public Animator animator;
     public Transform cameraTransform;
+    public Slider healthBar; 
+    public Slider energyBar;  
 
+    [Header("Fisicas")]
     public float walkSpeed = 2f;
     public float runSpeed = 6f;
     public float jumpHeight = 1.5f;
     public float gravity = -9.81f;
+
+    [Header("Estadisticas")]
+    public int vidaActual;
+    public int VidaMax = 100;
+    public float energiaActual;
+    public float energiaMax = 100;
+    public float tasaRegeneracion = 5f;
 
     private Vector3 velocity;
     private bool isGrounded;
@@ -28,6 +40,19 @@ public class ControlPersonaje : MonoBehaviour
     {
         // Inicializamos los bindings del Input System
         inputActions = new Player();
+    }
+
+    private void Start()
+    {
+        vidaActual = VidaMax;
+        energiaActual = energiaMax;
+
+        // Inicializar las barras
+        healthBar.maxValue = VidaMax;
+        healthBar.value = vidaActual;
+
+        energyBar.maxValue = energiaMax;
+        energyBar.value = energiaActual;
     }
 
     private void OnEnable()
@@ -64,13 +89,29 @@ public class ControlPersonaje : MonoBehaviour
         // Determinamos la velocidad de movimiento basado en el estado de correr
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
+        // Gasta energía al correr
+        if (isRunning && energiaActual > 0)
+        {
+            // Se gasta energía mientras corres
+            energiaActual -= Time.deltaTime * 10; // Gasta 10 de energía por segundo al correr
+        }
+        else
+        {
+            // Si no está corriendo o no hay energía, no se puede correr
+            isRunning = false;
+        }
+        if (!isRunning && energiaActual < 100)
+        {
+            energiaActual += Time.deltaTime * 10; // Gasta 10 de energía por segundo al correr
+        }
+
         // Convertimos el input de movimiento en un vector 3D basado en la cámara
         Vector3 move = cameraTransform.TransformDirection(moveInput.x, 0, moveInput.y);
         move.y = 0; // Mantener el movimiento en el plano horizontal
 
         // Movimiento lateral y hacia adelante
-        Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed; // Movimiento hacia adelante y atrás
-        Vector3 lateralMove = moveInput.x * transform.right * currentSpeed; // Movimiento lateral
+        Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed; 
+        Vector3 lateralMove = moveInput.x * transform.right * currentSpeed; 
 
         // Solo rotar hacia adelante cuando el movimiento es hacia adelante
         if (moveInput.magnitude > 0)
@@ -95,6 +136,9 @@ public class ControlPersonaje : MonoBehaviour
         // Aplicamos gravedad
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+        // Actualizar las barras de vida y energía
+        UpdateUIBars();
     }
 
     private void UpdateAnimation()
@@ -177,63 +221,75 @@ public class ControlPersonaje : MonoBehaviour
     {
         if (jumpInput && isGrounded)
         {
-            isGrounded = false;
-            // Determinar la dirección y el impulso del salto
-            Vector3 jumpDirection = Vector3.up; // Impulso inicial hacia arriba
-
-            float jumpImpulse = 0f; // Impulso horizontal adicional para saltos de esquiva
-            float currentJumpHeight = jumpHeight; // Altura del salto
-
-            // Detectar si el personaje está en movimiento
-            bool isMovingBackwards = moveInput.y < 0;
-            bool isMovingLeft = moveInput.x < -0.5f;
-            bool isMovingRight = moveInput.x > 0.5f;
-
-            if (moveInput.magnitude > 0) // Si el personaje está en movimiento
+            // Si el personaje tiene energía, permite saltar
+            if (energiaActual > 0)
             {
-                if (isMovingBackwards) // Esquivar hacia atrás
+                isGrounded = false;
+
+                // Determinar la dirección y el impulso del salto
+                Vector3 jumpDirection = Vector3.up; // Impulso inicial hacia arriba
+
+                float jumpImpulse = 0f; // Impulso horizontal adicional para saltos de esquiva
+                float currentJumpHeight = jumpHeight; // Altura del salto
+
+                // Detectar si el personaje está en movimiento
+                bool isMovingBackwards = moveInput.y < 0;
+                bool isMovingLeft = moveInput.x < -0.5f;
+                bool isMovingRight = moveInput.x > 0.5f;
+
+                if (moveInput.magnitude > 0) // Si el personaje está en movimiento
                 {
-                    jumpDirection += -transform.forward; // Añadir impulso hacia atrás
-                    jumpImpulse = 5f; // La velocidad de esquiva hacia atrás
-                    currentJumpHeight = jumpHeight * 0.5f; // Altura más baja para la esquiva
-                    animator.SetFloat("JumpDirection", -1f); // Animación de esquiva hacia atrás
+                    if (isMovingBackwards) // Esquivar hacia atrás
+                    {
+                        jumpDirection += -transform.forward; // Añadir impulso hacia atrás
+                        jumpImpulse = 5f; // La velocidad de esquiva hacia atrás
+                        currentJumpHeight = jumpHeight * 0.5f; // Altura más baja para la esquiva
+                        animator.SetFloat("JumpDirection", -1f); // Animación de esquiva hacia atrás
+                    }
+                    else if (isMovingLeft) // Esquivar hacia la izquierda
+                    {
+                        jumpDirection += -transform.right;
+                        jumpImpulse = 5f;
+                        currentJumpHeight = jumpHeight * 0.5f;
+                        animator.SetFloat("JumpDirection", 2f);
+                    }
+                    else if (isMovingRight) // Esquivar hacia la derecha
+                    {
+                        jumpDirection += transform.right;
+                        jumpImpulse = 5f;
+                        currentJumpHeight = jumpHeight * 0.5f;
+                        animator.SetFloat("JumpDirection", -2f);
+                    }
+                    else // Esquivar hacia adelante
+                    {
+                        jumpDirection += transform.forward;
+                        jumpImpulse = 5f;
+                        currentJumpHeight = jumpHeight * 0.5f;
+                        animator.SetFloat("JumpDirection", 1f);
+                    }
                 }
-                else if (isMovingLeft) // Esquivar hacia la izquierda
+                else
                 {
-                    jumpDirection += -transform.right;
-                    jumpImpulse = 5f;
-                    currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", 2f);
+                    // Saltar desde Idle
+                    animator.SetFloat("JumpDirection", 0f); // Animación de salto Idle
                 }
-                else if (isMovingRight) // Esquivar hacia la derecha
-                {
-                    jumpDirection += transform.right;
-                    jumpImpulse = 5f;
-                    currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", -2f);
-                }
-                else // Esquivar hacia adelante
-                {
-                    jumpDirection += transform.forward;
-                    jumpImpulse = 5f;
-                    currentJumpHeight = jumpHeight * 0.5f;
-                    animator.SetFloat("JumpDirection", 1f);
-                }
+
+                // Actualizar parámetros del Animator
+                animator.SetBool("isJumping", true);
+
+                // Aplicar impulso horizontal para esquivar
+                controller.Move(jumpDirection.normalized * jumpImpulse * Time.deltaTime);
+
+                // Aplicar el impulso de salto vertical
+                velocity.y = Mathf.Sqrt(currentJumpHeight * -2f * gravity); // Calcular el salto
+
+                energiaActual -= 15; // Gasta 15 de energía por salto                
             }
             else
             {
-                // Saltar desde Idle
-                animator.SetFloat("JumpDirection", 0f); // Animación de salto Idle
+                Debug.Log("No tienes suficiente energía para saltar.");
             }
 
-            // Actualizar parámetros del Animator
-            animator.SetBool("isJumping", true);
-
-            // Aplicar impulso horizontal para esquivar
-            controller.Move(jumpDirection.normalized * jumpImpulse * Time.deltaTime);
-
-            // Aplicar el impulso de salto vertical
-            velocity.y = Mathf.Sqrt(currentJumpHeight * -2f * gravity); // Calcular el salto
         }
 
         // Si está en el suelo, regresar el estado de salto
@@ -254,4 +310,62 @@ public class ControlPersonaje : MonoBehaviour
     {
         moveInput = Vector2.zero;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Damage"))
+        {
+            TakeDamage(20);
+            Debug.Log("¡recibiste daño!");
+        }
+        else if (other.CompareTag("Heal"))
+        {
+            Heal(20);
+            Debug.Log("¡te has curado!");
+            Destroy(other.gameObject);
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        vidaActual -= damage; // Resta el daño de la salud actual
+
+        if (vidaActual <= 0)
+        {
+            Die(); // Llama a la función de morir si la salud es 0 o menos
+        }
+    }
+
+    public void Heal(int healAmount)
+    {
+        vidaActual += healAmount; // Suma la cantidad de curación
+
+        // Asegúrate de que la salud no supere el máximo
+        if (vidaActual > VidaMax)
+        {
+            vidaActual = VidaMax;
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("El personaje ha muerto.");
+        // Aquí puedes añadir lógica adicional al morir, como reproducir una animación, desactivar el objeto, etc.
+        gameObject.SetActive(false); // Desactiva el objeto del jugador
+    }
+
+    public int GetCurrentHealth()
+    {
+        return vidaActual;
+    }
+
+    private void UpdateUIBars()
+    {
+        // Actualiza la barra de vida
+        healthBar.value = vidaActual;
+
+        // Actualiza la barra de energía
+        energyBar.value = energiaActual;
+    }
+
 }
