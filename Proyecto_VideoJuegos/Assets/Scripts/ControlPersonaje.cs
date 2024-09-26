@@ -108,19 +108,63 @@ public class ControlPersonaje : MonoBehaviour
         {
             if (isMovingBackwards)  // Movimiento hacia atrás
             {
-                animator.SetFloat("Speed", isRunning ? -2f : -1f); // Correr o caminar hacia atrás
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", -2f); // Correr hacia atrás
+                }
+                else
+                {
+                    if(moveInput.y < 0 && moveInput.y > -0.5)
+                    {
+                        animator.SetFloat("Speed", -1f); // Caminar hacia atrás
+                    }
+                    else
+                    {
+                        animator.SetFloat("Speed", -7f); // Caminar hacia atrás
+                    }
+                    
+                }
             }
             else if (isMovingLeft)  // Movimiento hacia la izquierda
             {
-                animator.SetFloat("Speed", isRunning ? 4f : 3f); // Correr o caminar hacia la izquierda
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 4f); // Correr hacia la izquierda
+                }
+                else
+                {
+                    animator.SetFloat("Speed", 3f); // Caminar hacia la izquierda
+                }
             }
             else if (isMovingRight)  // Movimiento hacia la derecha
             {
-                animator.SetFloat("Speed", isRunning ? 6f : 5f); // Correr o caminar hacia la derecha
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 6f); // Correr hacia la derecha
+                }
+                else
+                {
+                    animator.SetFloat("Speed", 5f); // Caminar hacia la derecha
+                }
             }
             else  // Movimiento hacia adelante
             {
-                animator.SetFloat("Speed", isRunning ? 2f : 1f); // Correr o caminar hacia adelante
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 2f); // Correr hacia adelante
+                }
+                else
+                {
+                    if (moveInput.y > 0 && moveInput.y < 0.5)
+                    {
+                        animator.SetFloat("Speed", 1f); // Caminar hacia adelante
+                    }
+                    else
+                    {
+                        animator.SetFloat("Speed", 7f); // Caminar hacia atrás
+                    }
+                    
+                }
             }
         }
         else
