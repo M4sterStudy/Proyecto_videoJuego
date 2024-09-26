@@ -61,22 +61,114 @@ public class ControlPersonaje : MonoBehaviour
             velocity.y = -2f;
         }
 
-        // Determinamos la velocidad según si corre o camina
+        // Determinamos la velocidad de movimiento basado en el estado de correr
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
         // Convertimos el input de movimiento en un vector 3D
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
         controller.Move(move * currentSpeed * Time.deltaTime);
 
-        // Actualizamos la animación
-        speed = moveInput.magnitude; // 0 = Idle, 1 = Walk, 2 = Run
-        animator.SetFloat("Speed", speed);
+        // Detectar el movimiento en las direcciones: adelante, atrás, izquierda, derecha
+        bool isMovingBackwards = moveInput.y < 0;
+        bool isMovingLeft = moveInput.x < 0;
+        bool isMovingRight = moveInput.x > 0;
+
+        // Actualizamos la animación: "Speed"
+        if (moveInput.magnitude > 0) // Si el personaje se está moviendo
+        {
+            if (isMovingBackwards)  // Movimiento hacia atrás
+            {
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", -2f); // Correr hacia atrás
+                }
+                else
+                {
+                    animator.SetFloat("Speed", -1f); // Caminar hacia atrás
+                }
+            }
+            else if (isMovingLeft)  // Movimiento hacia la izquierda
+            {
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 4f); // Correr hacia la izquierda
+                }
+                else
+                {
+                    animator.SetFloat("Speed", 3f); // Caminar hacia la izquierda
+                }
+            }
+            else if (isMovingRight)  // Movimiento hacia la derecha
+            {
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 6f); // Correr hacia la derecha
+                }
+                else
+                {
+                    animator.SetFloat("Speed", 5f); // Caminar hacia la derecha
+                }
+            }
+            else  // Movimiento hacia adelante
+            {
+                if (isRunning)
+                {
+                    animator.SetFloat("Speed", 2f); // Correr hacia adelante
+                }
+                else
+                {
+                    animator.SetFloat("Speed", 1f); // Caminar hacia adelante
+                }
+            }
+        }
+        else
+        {
+            animator.SetFloat("Speed", 0f); // Quieto (Idle)
+        }
 
         // Salto
         if (jumpInput && isGrounded)
         {
+            isGrounded = false;
+            animator.SetBool("isJumping", true);
+            animator.SetFloat("JumpDirection", 0f);
+
+            if (isMovingBackwards) // Hacia atrás
+            {
+                isGrounded = false;
+                animator.SetBool("isJumping", true);
+                animator.SetFloat("JumpDirection", -1f);
+            }
+            else if (isMovingLeft) // Hacia la izquierda
+            {
+                isGrounded = false;
+                animator.SetBool("isJumping", true);
+                animator.SetFloat("JumpDirection", 2f);
+            }
+            else if (isMovingRight) // Hacia la derecha
+            {
+                isGrounded = false;
+                animator.SetBool("isJumping", true);
+                animator.SetFloat("JumpDirection", -2f);
+            }
+            else if (moveInput.magnitude > 0) // Hacia adelante
+            {
+                isGrounded = false;
+                animator.SetBool("isJumping", true);
+                animator.SetFloat("JumpDirection", 1f);
+            }
+
+            // Actualizamos los parámetros
+             // Indicar que está saltando
+
+            // Aplicar la física del salto
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            animator.SetTrigger("Jump");
+        }
+
+        // Si está en el suelo, regresar el estado de salto
+        if (isGrounded)
+        {
+            animator.SetBool("isJumping", false); // Regresar a no saltar
         }
 
         // Aplicamos gravedad
