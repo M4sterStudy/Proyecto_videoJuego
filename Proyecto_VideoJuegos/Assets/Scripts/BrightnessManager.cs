@@ -1,51 +1,110 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BrightnessManager : MonoBehaviour
 {
-    [Header("Referencias UI")]
-    [SerializeField] private Slider brightnessSlider;
+    private Slider brightnessSlider;
+    private Image panelBrillo;
 
-    // Referencia a la cámara
-    private Camera mainCamera;
+    private static BrightnessManager instance;
+
+    private const float maxOpacity = 1f;
+    private const float minOpacity = 0f;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
-        // Obtener la cámara principal
-        mainCamera = Camera.main;
-
-        if(mainCamera == null)
-        {
-            Debug.Log("no hay camara");
-        }
-
-        // Cargar el brillo guardado o establecer un valor por defecto
-        float savedBrightness = PlayerPrefs.GetFloat("Brightness", 1f);
-        brightnessSlider.value = savedBrightness;
-        SetBrightness(savedBrightness);
-
-        // Asignar el evento del slider
-        brightnessSlider.onValueChanged.AddListener(SetBrightness);
+        SetupBrightnessControl();
     }
 
-    public void SetBrightness(float value)
+    private void SetupBrightnessControl()
     {
-        // Ajustar el color de fondo de la cámara
-        Color newColor = new Color(value, value, value, 1f);
-        mainCamera.backgroundColor = newColor;
+        // Buscar el slider y el panel por tag, incluyendo objetos inactivos
+        brightnessSlider = FindObjectByTag<Slider>("SliderBrillo");
+        panelBrillo = FindObjectByTag<Image>("PanelBrillo");
 
-        // Ajustar el brillo de todos los elementos UI en el Canvas
-        Canvas canvas = GetComponentInChildren<Canvas>();
-        if (canvas != null)
+        if (brightnessSlider == null)
         {
-            foreach (Graphic graphic in canvas.GetComponentsInChildren<Graphic>())
-            {
-                graphic.color = new Color(graphic.color.r, graphic.color.g, graphic.color.b, value);
-                Debug.Log($"Ajustado el brillo de {graphic.name} a {value}"); // Mensaje de depuración
-            }
+            Debug.LogWarning("No se encontró el objeto con tag SliderBrillo en la escena. El control de brillo no estará disponible.");
+            return;
         }
 
-        // Guarda el brillo
-        PlayerPrefs.SetFloat("Brightness", value);
+        if (panelBrillo == null)
+        {
+            Debug.LogWarning("No se encontró el objeto con tag PanelBrillo en la escena. El efecto de brillo no será visible.");
+            return;
+        }
+
+        // Asegurarse de que los GameObjects del slider y panel estén activos
+        brightnessSlider.gameObject.SetActive(true);
+        panelBrillo.gameObject.SetActive(true);
+
+        brightnessSlider.minValue = 40;
+        brightnessSlider.maxValue = 200;
+
+        brightnessSlider.value = PlayerPrefs.GetFloat("brillo", 100f);
+
+        AdjustBrightness(brightnessSlider.value);
+
+        brightnessSlider.onValueChanged.AddListener(ChangeSlider);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SetupBrightnessControl();
+    }
+
+    // Método genérico para encontrar objetos por tag, incluyendo objetos inactivos
+    private T FindObjectByTag<T>(string tag) where T : Component
+    {
+        T[] allObjects = Resources.FindObjectsOfTypeAll<T>();
+        foreach (T obj in allObjects)
+        {
+            if (obj.CompareTag(tag))
+            {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    public void ChangeSlider(float valor)
+    {
+        PlayerPrefs.SetFloat("brillo", valor);
+        AdjustBrightness(valor);
+    }
+
+    private void AdjustBrightness(float value)
+    {
+        if (panelBrillo != null)
+        {
+            float normalizedValue = Mathf.Clamp(value / 200f, minOpacity, maxOpacity);
+            Color panelColor = panelBrillo.color;
+            panelColor.a = 1f - normalizedValue;
+            panelBrillo.color = panelColor;
+        }
+        else
+        {
+            Debug.LogWarning("PanelBrillo no está disponible. No se puede ajustar el brillo visualmente.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

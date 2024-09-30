@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Damage
   - Heal
+  - SliderMusica
+  - SliderEfectosDeSonido
+  - SliderBrillo
+  - PanelBrillo
   layers:
   - Default
   - TransparentFX
