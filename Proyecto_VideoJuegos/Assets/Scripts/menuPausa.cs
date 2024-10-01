@@ -8,6 +8,11 @@ public class menuPausa : MonoBehaviour
     // Referencia al objeto de menú de pausa
     [SerializeField] private GameObject menuPausaUI;
 
+    [SerializeField] private GameObject menuPausaPanel;
+
+    // Lista de otros paneles/interfaz que deberían desactivarse cuando se vuelve al menú de pausa
+    [SerializeField] private List<GameObject> otrosPanelesUI;
+
     // Lista de escenas en las que el menú de pausa no aparecerá
     [SerializeField] private List<string> escenasExcluidas;
 
@@ -53,10 +58,11 @@ public class menuPausa : MonoBehaviour
     }
 
     // Método para activar/desactivar el menú de pausa
-    private void ToggleMenu()
+    public void ToggleMenu()
     {
         menuActivo = !menuActivo;
         menuPausaUI.SetActive(menuActivo);
+        ActivarMenuPrincipal();
 
         // Reproducir el sonido de activación/desactivación si el objeto y el AudioSource están asignados
         if (toggleSound != null)
@@ -72,6 +78,22 @@ public class menuPausa : MonoBehaviour
         else
         {
             Time.timeScale = 1f; // Reanudar el juego
+        }
+    }
+
+    // Método para activar la interfaz del menú principal y desactivar los demás paneles
+    public void ActivarMenuPrincipal()
+    {
+        // Activar el menú principal de pausa
+        menuPausaPanel.SetActive(true);
+
+        // Desactivar todos los demás paneles que podrían haber quedado activos
+        foreach (GameObject panel in otrosPanelesUI)
+        {
+            if (panel != null)
+            {
+                panel.SetActive(false);
+            }
         }
     }
 }
