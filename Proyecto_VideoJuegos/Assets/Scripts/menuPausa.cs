@@ -25,6 +25,9 @@ public class menuPausa : MonoBehaviour
 
     private void Start()
     {
+        // Restablecer Time.timeScale a 1 en cada carga de escena
+        Time.timeScale = 1f;
+
         // Verificar si la escena actual está en la lista de exclusión
         string escenaActual = SceneManager.GetActiveScene().name;
         if (escenasExcluidas.Contains(escenaActual))
