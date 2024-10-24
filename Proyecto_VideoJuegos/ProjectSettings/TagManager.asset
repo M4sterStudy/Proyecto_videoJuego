@@ -10,6 +10,8 @@ TagManager:
   - SliderEfectosDeSonido
   - SliderBrillo
   - PanelBrillo
+  - Suelo
+  - Lava
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - terrain
   - Water
   - UI
-  - 
+  - enemy
   - 
   - 
   - 

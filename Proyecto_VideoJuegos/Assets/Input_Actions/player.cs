@@ -62,6 +62,24 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LightAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""789d3154-0154-4db4-9ffd-dedd2a26f175"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HeavyAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""847d1280-5a2e-434e-b859-abc34790b5e1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +214,50 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""action"": ""camara"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4e016458-c633-4d72-96f6-eed86e60efa6"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LightAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""780f256a-7259-4d41-91f2-6d7acc92103d"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LightAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e17ea32d-c73b-464c-9d5f-887b9d600fc8"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HeavyAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b037e5a8-51a3-4b86-912a-97922938f521"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HeavyAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -208,6 +270,8 @@ public partial class @Player: IInputActionCollection2, IDisposable
         m_personaje_saltar = m_personaje.FindAction("saltar", throwIfNotFound: true);
         m_personaje_correr = m_personaje.FindAction("correr", throwIfNotFound: true);
         m_personaje_camara = m_personaje.FindAction("camara", throwIfNotFound: true);
+        m_personaje_LightAttack = m_personaje.FindAction("LightAttack", throwIfNotFound: true);
+        m_personaje_HeavyAttack = m_personaje.FindAction("HeavyAttack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -273,6 +337,8 @@ public partial class @Player: IInputActionCollection2, IDisposable
     private readonly InputAction m_personaje_saltar;
     private readonly InputAction m_personaje_correr;
     private readonly InputAction m_personaje_camara;
+    private readonly InputAction m_personaje_LightAttack;
+    private readonly InputAction m_personaje_HeavyAttack;
     public struct PersonajeActions
     {
         private @Player m_Wrapper;
@@ -281,6 +347,8 @@ public partial class @Player: IInputActionCollection2, IDisposable
         public InputAction @saltar => m_Wrapper.m_personaje_saltar;
         public InputAction @correr => m_Wrapper.m_personaje_correr;
         public InputAction @camara => m_Wrapper.m_personaje_camara;
+        public InputAction @LightAttack => m_Wrapper.m_personaje_LightAttack;
+        public InputAction @HeavyAttack => m_Wrapper.m_personaje_HeavyAttack;
         public InputActionMap Get() { return m_Wrapper.m_personaje; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -302,6 +370,12 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @camara.started += instance.OnCamara;
             @camara.performed += instance.OnCamara;
             @camara.canceled += instance.OnCamara;
+            @LightAttack.started += instance.OnLightAttack;
+            @LightAttack.performed += instance.OnLightAttack;
+            @LightAttack.canceled += instance.OnLightAttack;
+            @HeavyAttack.started += instance.OnHeavyAttack;
+            @HeavyAttack.performed += instance.OnHeavyAttack;
+            @HeavyAttack.canceled += instance.OnHeavyAttack;
         }
 
         private void UnregisterCallbacks(IPersonajeActions instance)
@@ -318,6 +392,12 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @camara.started -= instance.OnCamara;
             @camara.performed -= instance.OnCamara;
             @camara.canceled -= instance.OnCamara;
+            @LightAttack.started -= instance.OnLightAttack;
+            @LightAttack.performed -= instance.OnLightAttack;
+            @LightAttack.canceled -= instance.OnLightAttack;
+            @HeavyAttack.started -= instance.OnHeavyAttack;
+            @HeavyAttack.performed -= instance.OnHeavyAttack;
+            @HeavyAttack.canceled -= instance.OnHeavyAttack;
         }
 
         public void RemoveCallbacks(IPersonajeActions instance)
@@ -341,5 +421,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
         void OnSaltar(InputAction.CallbackContext context);
         void OnCorrer(InputAction.CallbackContext context);
         void OnCamara(InputAction.CallbackContext context);
+        void OnLightAttack(InputAction.CallbackContext context);
+        void OnHeavyAttack(InputAction.CallbackContext context);
     }
 }
