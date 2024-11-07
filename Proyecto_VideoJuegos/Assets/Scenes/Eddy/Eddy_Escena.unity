@@ -17,16 +17,16 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.13962269, g: 0, b: 0, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.1
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 0.54
+  m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10650, guid: 0000000000000000f000000000000000, type: 0}
+  m_SubtractiveShadowColor: {r: 0, g: 0, b: 0, a: 1}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 7e065056c5696ce48ad5b62947fb2e6c, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 1503027501}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2278,11 +2278,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5486372391987667927, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.y
-      value: 2.5
+      value: 4.499996
       objectReference: {fileID: 0}
     - target: {fileID: 5486372391987667927, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.z
-      value: -4
+      value: -1.750016
       objectReference: {fileID: 0}
     - target: {fileID: 5596504634872846063, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2354,19 +2354,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7475364433282888825, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.y
-      value: 2.5
+      value: 4.499996
       objectReference: {fileID: 0}
     - target: {fileID: 7475364433282888825, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.z
-      value: -4
+      value: -1.750016
       objectReference: {fileID: 0}
     - target: {fileID: 7892666770329953620, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.y
-      value: 2.5
+      value: 4.499996
       objectReference: {fileID: 0}
     - target: {fileID: 7892666770329953620, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_FollowOffset.z
-      value: -4
+      value: -1.750016
       objectReference: {fileID: 0}
     - target: {fileID: 7992234196692728395, guid: 124ac56af5cd1bd4f841684d0cd8b220, type: 3}
       propertyPath: m_LocalPosition.x
