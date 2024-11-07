@@ -6,12 +6,12 @@ using UnityEngine.UI;
 
 public class ControlPersonaje : MonoBehaviour
 {
-    [Header ("GameObjects")]
+    [Header("GameObjects")]
     public CharacterController controller;
     public Animator animator;
     public Transform cameraTransform;
-    public Image healthBar; 
-    public Image energyBar;  
+    public Image healthBar;
+    public Image energyBar;
 
     [Header("Fisicas")]
     public float walkSpeed = 2f;
@@ -107,8 +107,8 @@ public class ControlPersonaje : MonoBehaviour
         move.y = 0; // Mantener el movimiento en el plano horizontal
 
         // Movimiento lateral y hacia adelante
-        Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed; 
-        Vector3 lateralMove = moveInput.x * transform.right * currentSpeed; 
+        Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed;
+        Vector3 lateralMove = moveInput.x * transform.right * currentSpeed;
 
         // Solo rotar hacia adelante cuando el movimiento es hacia adelante
         if (moveInput.magnitude > 0)
@@ -155,7 +155,7 @@ public class ControlPersonaje : MonoBehaviour
                 }
                 else
                 {
-                    if(moveInput.y < 0 && moveInput.y > -0.5)
+                    if (moveInput.y < 0 && moveInput.y > -0.5)
                     {
                         animator.SetFloat("Speed", -1f); // Caminar hacia atrás
                     }
@@ -163,7 +163,7 @@ public class ControlPersonaje : MonoBehaviour
                     {
                         animator.SetFloat("Speed", -7f); // Caminar hacia atrás
                     }
-                    
+
                 }
             }
             else if (isMovingLeft)  // Movimiento hacia la izquierda
@@ -204,7 +204,7 @@ public class ControlPersonaje : MonoBehaviour
                     {
                         animator.SetFloat("Speed", 7f); // Caminar hacia atrás
                     }
-                    
+
                 }
             }
         }
@@ -320,6 +320,12 @@ public class ControlPersonaje : MonoBehaviour
             Heal(20);
             Debug.Log("¡te has curado!");
             Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("Lava"))
+        {
+            vidaActual = 0; // Vida a 0 al tocar "Lava"
+            Die();
+            Debug.Log("¡Has caído en lava! Vida reducida a 0.");
         }
     }
 
