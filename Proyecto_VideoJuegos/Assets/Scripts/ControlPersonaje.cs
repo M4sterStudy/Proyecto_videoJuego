@@ -10,8 +10,8 @@ public class ControlPersonaje : MonoBehaviour
     public CharacterController controller;
     public Animator animator;
     public Transform cameraTransform;
-    public Slider healthBar; 
-    public Slider energyBar;  
+    public Image healthBar; 
+    public Image energyBar;  
 
     [Header("Fisicas")]
     public float walkSpeed = 2f;
@@ -48,11 +48,8 @@ public class ControlPersonaje : MonoBehaviour
         energiaActual = energiaMax;
 
         // Inicializar las barras
-        healthBar.maxValue = VidaMax;
-        healthBar.value = vidaActual;
-
-        energyBar.maxValue = energiaMax;
-        energyBar.value = energiaActual;
+        healthBar.fillAmount = (float)vidaActual / VidaMax;
+        energyBar.fillAmount = energiaActual / energiaMax;
     }
 
     private void OnEnable()
@@ -361,11 +358,11 @@ public class ControlPersonaje : MonoBehaviour
 
     private void UpdateUIBars()
     {
-        // Actualiza la barra de vida
-        healthBar.value = vidaActual;
+        // Actualizamos la barra de vida con fillAmount
+        healthBar.fillAmount = (float)vidaActual / VidaMax;
 
-        // Actualiza la barra de energía
-        energyBar.value = energiaActual;
+        // Actualizamos la barra de energía con fillAmount
+        energyBar.fillAmount = energiaActual / energiaMax;
     }
 
 }
