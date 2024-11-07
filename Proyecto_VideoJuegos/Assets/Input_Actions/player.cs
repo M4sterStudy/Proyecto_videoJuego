@@ -64,18 +64,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""LightAttack"",
+                    ""name"": ""esquivar"",
                     ""type"": ""Button"",
-                    ""id"": ""789d3154-0154-4db4-9ffd-dedd2a26f175"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""HeavyAttack"",
-                    ""type"": ""Button"",
-                    ""id"": ""847d1280-5a2e-434e-b859-abc34790b5e1"",
+                    ""id"": ""c015f97e-b1b3-4e9a-a065-5a47758beb23"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -217,29 +208,55 @@ public partial class @Player: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""4e016458-c633-4d72-96f6-eed86e60efa6"",
-                    ""path"": ""<Mouse>/leftButton"",
+                    ""id"": ""4f4c6eaa-3ba4-45d9-9e72-a1fdca484cbd"",
+                    ""path"": ""<Keyboard>/alt"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LightAttack"",
+                    ""action"": ""esquivar"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""780f256a-7259-4d41-91f2-6d7acc92103d"",
-                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""id"": ""93e92b9d-5b05-4e59-9040-e1ef3bf50d37"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LightAttack"",
+                    ""action"": ""esquivar"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""combate"",
+            ""id"": ""54303ea5-0547-4a4d-bda2-b5063720c214"",
+            ""actions"": [
+                {
+                    ""name"": ""HeavyAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""36b70a73-8b23-40ee-a925-6381c56263bf"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""LightAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""b70be93a-eec5-4e45-ac2b-6471cc212add"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
                     ""name"": """",
-                    ""id"": ""e17ea32d-c73b-464c-9d5f-887b9d600fc8"",
+                    ""id"": ""e85ef82b-61f5-49ff-8655-74a1aada9791"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -250,12 +267,34 @@ public partial class @Player: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""b037e5a8-51a3-4b86-912a-97922938f521"",
+                    ""id"": ""17d84bba-3aa9-48e2-a23a-bdf6ad887fc6"",
                     ""path"": ""<Gamepad>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""HeavyAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0f563169-c531-4941-9aef-b2bae6c782a7"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LightAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""32885c1b-75b4-4a56-b240-57292716ea7d"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LightAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -270,8 +309,11 @@ public partial class @Player: IInputActionCollection2, IDisposable
         m_personaje_saltar = m_personaje.FindAction("saltar", throwIfNotFound: true);
         m_personaje_correr = m_personaje.FindAction("correr", throwIfNotFound: true);
         m_personaje_camara = m_personaje.FindAction("camara", throwIfNotFound: true);
-        m_personaje_LightAttack = m_personaje.FindAction("LightAttack", throwIfNotFound: true);
-        m_personaje_HeavyAttack = m_personaje.FindAction("HeavyAttack", throwIfNotFound: true);
+        m_personaje_esquivar = m_personaje.FindAction("esquivar", throwIfNotFound: true);
+        // combate
+        m_combate = asset.FindActionMap("combate", throwIfNotFound: true);
+        m_combate_HeavyAttack = m_combate.FindAction("HeavyAttack", throwIfNotFound: true);
+        m_combate_LightAttack = m_combate.FindAction("LightAttack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -337,8 +379,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
     private readonly InputAction m_personaje_saltar;
     private readonly InputAction m_personaje_correr;
     private readonly InputAction m_personaje_camara;
-    private readonly InputAction m_personaje_LightAttack;
-    private readonly InputAction m_personaje_HeavyAttack;
+    private readonly InputAction m_personaje_esquivar;
     public struct PersonajeActions
     {
         private @Player m_Wrapper;
@@ -347,8 +388,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
         public InputAction @saltar => m_Wrapper.m_personaje_saltar;
         public InputAction @correr => m_Wrapper.m_personaje_correr;
         public InputAction @camara => m_Wrapper.m_personaje_camara;
-        public InputAction @LightAttack => m_Wrapper.m_personaje_LightAttack;
-        public InputAction @HeavyAttack => m_Wrapper.m_personaje_HeavyAttack;
+        public InputAction @esquivar => m_Wrapper.m_personaje_esquivar;
         public InputActionMap Get() { return m_Wrapper.m_personaje; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -370,12 +410,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @camara.started += instance.OnCamara;
             @camara.performed += instance.OnCamara;
             @camara.canceled += instance.OnCamara;
-            @LightAttack.started += instance.OnLightAttack;
-            @LightAttack.performed += instance.OnLightAttack;
-            @LightAttack.canceled += instance.OnLightAttack;
-            @HeavyAttack.started += instance.OnHeavyAttack;
-            @HeavyAttack.performed += instance.OnHeavyAttack;
-            @HeavyAttack.canceled += instance.OnHeavyAttack;
+            @esquivar.started += instance.OnEsquivar;
+            @esquivar.performed += instance.OnEsquivar;
+            @esquivar.canceled += instance.OnEsquivar;
         }
 
         private void UnregisterCallbacks(IPersonajeActions instance)
@@ -392,12 +429,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @camara.started -= instance.OnCamara;
             @camara.performed -= instance.OnCamara;
             @camara.canceled -= instance.OnCamara;
-            @LightAttack.started -= instance.OnLightAttack;
-            @LightAttack.performed -= instance.OnLightAttack;
-            @LightAttack.canceled -= instance.OnLightAttack;
-            @HeavyAttack.started -= instance.OnHeavyAttack;
-            @HeavyAttack.performed -= instance.OnHeavyAttack;
-            @HeavyAttack.canceled -= instance.OnHeavyAttack;
+            @esquivar.started -= instance.OnEsquivar;
+            @esquivar.performed -= instance.OnEsquivar;
+            @esquivar.canceled -= instance.OnEsquivar;
         }
 
         public void RemoveCallbacks(IPersonajeActions instance)
@@ -415,13 +449,71 @@ public partial class @Player: IInputActionCollection2, IDisposable
         }
     }
     public PersonajeActions @personaje => new PersonajeActions(this);
+
+    // combate
+    private readonly InputActionMap m_combate;
+    private List<ICombateActions> m_CombateActionsCallbackInterfaces = new List<ICombateActions>();
+    private readonly InputAction m_combate_HeavyAttack;
+    private readonly InputAction m_combate_LightAttack;
+    public struct CombateActions
+    {
+        private @Player m_Wrapper;
+        public CombateActions(@Player wrapper) { m_Wrapper = wrapper; }
+        public InputAction @HeavyAttack => m_Wrapper.m_combate_HeavyAttack;
+        public InputAction @LightAttack => m_Wrapper.m_combate_LightAttack;
+        public InputActionMap Get() { return m_Wrapper.m_combate; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(CombateActions set) { return set.Get(); }
+        public void AddCallbacks(ICombateActions instance)
+        {
+            if (instance == null || m_Wrapper.m_CombateActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CombateActionsCallbackInterfaces.Add(instance);
+            @HeavyAttack.started += instance.OnHeavyAttack;
+            @HeavyAttack.performed += instance.OnHeavyAttack;
+            @HeavyAttack.canceled += instance.OnHeavyAttack;
+            @LightAttack.started += instance.OnLightAttack;
+            @LightAttack.performed += instance.OnLightAttack;
+            @LightAttack.canceled += instance.OnLightAttack;
+        }
+
+        private void UnregisterCallbacks(ICombateActions instance)
+        {
+            @HeavyAttack.started -= instance.OnHeavyAttack;
+            @HeavyAttack.performed -= instance.OnHeavyAttack;
+            @HeavyAttack.canceled -= instance.OnHeavyAttack;
+            @LightAttack.started -= instance.OnLightAttack;
+            @LightAttack.performed -= instance.OnLightAttack;
+            @LightAttack.canceled -= instance.OnLightAttack;
+        }
+
+        public void RemoveCallbacks(ICombateActions instance)
+        {
+            if (m_Wrapper.m_CombateActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(ICombateActions instance)
+        {
+            foreach (var item in m_Wrapper.m_CombateActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_CombateActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public CombateActions @combate => new CombateActions(this);
     public interface IPersonajeActions
     {
         void OnMovimiento(InputAction.CallbackContext context);
         void OnSaltar(InputAction.CallbackContext context);
         void OnCorrer(InputAction.CallbackContext context);
         void OnCamara(InputAction.CallbackContext context);
-        void OnLightAttack(InputAction.CallbackContext context);
+        void OnEsquivar(InputAction.CallbackContext context);
+    }
+    public interface ICombateActions
+    {
         void OnHeavyAttack(InputAction.CallbackContext context);
+        void OnLightAttack(InputAction.CallbackContext context);
     }
 }

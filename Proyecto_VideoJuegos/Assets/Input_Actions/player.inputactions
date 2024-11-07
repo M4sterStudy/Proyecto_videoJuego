@@ -42,18 +42,9 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "LightAttack",
+                    "name": "esquivar",
                     "type": "Button",
-                    "id": "789d3154-0154-4db4-9ffd-dedd2a26f175",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "HeavyAttack",
-                    "type": "Button",
-                    "id": "847d1280-5a2e-434e-b859-abc34790b5e1",
+                    "id": "c015f97e-b1b3-4e9a-a065-5a47758beb23",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -195,29 +186,55 @@
                 },
                 {
                     "name": "",
-                    "id": "4e016458-c633-4d72-96f6-eed86e60efa6",
-                    "path": "<Mouse>/leftButton",
+                    "id": "4f4c6eaa-3ba4-45d9-9e72-a1fdca484cbd",
+                    "path": "<Keyboard>/alt",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LightAttack",
+                    "action": "esquivar",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "780f256a-7259-4d41-91f2-6d7acc92103d",
-                    "path": "<Gamepad>/buttonWest",
+                    "id": "93e92b9d-5b05-4e59-9040-e1ef3bf50d37",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LightAttack",
+                    "action": "esquivar",
                     "isComposite": false,
                     "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "combate",
+            "id": "54303ea5-0547-4a4d-bda2-b5063720c214",
+            "actions": [
+                {
+                    "name": "HeavyAttack",
+                    "type": "Button",
+                    "id": "36b70a73-8b23-40ee-a925-6381c56263bf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 },
                 {
+                    "name": "LightAttack",
+                    "type": "Button",
+                    "id": "b70be93a-eec5-4e45-ac2b-6471cc212add",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
                     "name": "",
-                    "id": "e17ea32d-c73b-464c-9d5f-887b9d600fc8",
+                    "id": "e85ef82b-61f5-49ff-8655-74a1aada9791",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
@@ -228,12 +245,34 @@
                 },
                 {
                     "name": "",
-                    "id": "b037e5a8-51a3-4b86-912a-97922938f521",
+                    "id": "17d84bba-3aa9-48e2-a23a-bdf6ad887fc6",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "HeavyAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0f563169-c531-4941-9aef-b2bae6c782a7",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LightAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "32885c1b-75b4-4a56-b240-57292716ea7d",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LightAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
