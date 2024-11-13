@@ -10,8 +10,9 @@ public class ExplosionDiablillo : MonoBehaviour
     private Transform jugador;
     private Animator animador;
     private ComportamientoGeneralEnemigos comportamientoEnemigo;
-    private Rigidbody rb; // Referencia al Rigidbody
     private bool haExplotado = false;
+
+    private Rigidbody rb;
 
     private void Start()
     {
@@ -35,11 +36,6 @@ public class ExplosionDiablillo : MonoBehaviour
         {
             Debug.LogError("No se encontró el componente ComportamientoGeneralEnemigos en este objeto.");
         }
-
-        if (rb == null)
-        {
-            Debug.LogError("No se encontró el componente Rigidbody en este objeto.");
-        }
     }
 
     private void Update()
@@ -61,10 +57,15 @@ public class ExplosionDiablillo : MonoBehaviour
     {
         haExplotado = true;
 
-        // Congelar posición y rotación en el Rigidbody para evitar cualquier movimiento o rotación
+        // Congelar la posición y rotación (si tiene Rigidbody)
         if (rb != null)
         {
-            rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+            rb.isKinematic = true; // Desactiva la física para que el objeto no se mueva ni rote
+            rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; // Congela la posición y rotación
+
+            // Fijar manualmente la posición y rotación del objeto para evitar cualquier cambio por parte de la física
+            transform.position = transform.position;
+            transform.rotation = transform.rotation;
         }
 
         // Reproducir el sistema de partículas y activar animación de muerte
@@ -81,6 +82,7 @@ public class ExplosionDiablillo : MonoBehaviour
         // Desactivar el objeto después de un retraso
         StartCoroutine(DesactivarObjeto());
     }
+
 
     private IEnumerator DesactivarObjeto()
     {

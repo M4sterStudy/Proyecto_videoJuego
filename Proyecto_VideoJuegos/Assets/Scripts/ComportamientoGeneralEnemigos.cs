@@ -13,12 +13,13 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
     [Header("Configuración de Persecución")]
     [SerializeField] private float distanciaPersecucion = 5f;
     public float distanciaDetencion = 1.5f;
-    [SerializeField] private float velocidadRetorno = 3f; // Velocidad para volver al punto inicial
+    public bool haExplotado = false;  // Indicador de explosión
+    [SerializeField] private float velocidadRetorno = 3f;
 
     private Transform jugador;
     private Animator animador;
     private Vector3 direccionMovimiento;
-    private Quaternion rotacionObjetivo;
+    private float rotacionObjetivoY;
     private bool rotando;
     private bool enPausa;
     private Vector3 puntoInicio;
@@ -47,26 +48,22 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
         float distanciaAlJugador = Vector3.Distance(transform.position, jugador.position);
         float distanciaAlInicio = Vector3.Distance(transform.position, puntoInicio);
 
-        // Verificar si está dentro del rango permitido desde el punto de inicio
         bool fueraDeRango = distanciaAlInicio > distanciaMaxima;
 
         if (distanciaAlJugador < distanciaPersecucion && !fueraDeRango)
         {
-            // Si el jugador está cerca y no estamos fuera de rango, perseguir
             enPersecucion = true;
             regresandoAInicio = false;
             ManejarComportamientoPersecucion(distanciaAlJugador);
         }
         else if (fueraDeRango || regresandoAInicio)
         {
-            // Si estamos fuera de rango o ya estábamos regresando, volver al punto inicial
             enPersecucion = false;
             regresandoAInicio = true;
             RegresarAPuntoInicial();
         }
         else
         {
-            // Comportamiento normal de patrulla
             enPersecucion = false;
             regresandoAInicio = false;
             ManejarComportamientoPatrulla();
@@ -76,18 +73,20 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
     private void RegresarAPuntoInicial()
     {
         Vector3 direccionAlInicio = (puntoInicio - transform.position).normalized;
-        Quaternion rotacionHaciaInicio = Quaternion.LookRotation(direccionAlInicio);
+        float anguloObjetivo = Mathf.Atan2(direccionAlInicio.x, direccionAlInicio.z) * Mathf.Rad2Deg;
         float distanciaAlInicio = Vector3.Distance(transform.position, puntoInicio);
 
-        // Rotar hacia el punto inicial
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, rotacionHaciaInicio, velocidadRotacion * Time.deltaTime);
+        // Rotar solo en el eje Y
+        float rotacionActual = transform.eulerAngles.y;
+        float nuevaRotacionY = Mathf.MoveTowardsAngle(rotacionActual, anguloObjetivo, velocidadRotacion * Time.deltaTime);
+        transform.rotation = Quaternion.Euler(0, nuevaRotacionY, 0);
 
-        float anguloDiferencia = Quaternion.Angle(transform.rotation, rotacionHaciaInicio);
+        float anguloDiferencia = Mathf.Abs(Mathf.DeltaAngle(rotacionActual, anguloObjetivo));
 
         if (anguloDiferencia > 1f)
         {
             DetenerAnimaciones();
-            if (Vector3.Cross(transform.forward, direccionAlInicio).y > 0)
+            if (Mathf.DeltaAngle(rotacionActual, anguloObjetivo) > 0)
             {
                 animador.SetBool("enemigoRotarIzquierda", true);
             }
@@ -103,7 +102,6 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
             transform.Translate(Vector3.forward * velocidadRetorno * Time.deltaTime);
         }
 
-        // Si ya llegamos cerca del punto inicial, volver al comportamiento normal
         if (distanciaAlInicio < 0.5f)
         {
             regresandoAInicio = false;
@@ -118,20 +116,22 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
         if (distanciaAlJugador <= distanciaDetencion)
         {
             DetenerAnimaciones();
-            animador.SetBool("enemigoQuieto", true);
+            //animador.SetBool("enemigoQuieto", true);
             return;
         }
 
         Vector3 direccionHaciaJugador = (jugador.position - transform.position).normalized;
-        Quaternion rotacionHaciaJugador = Quaternion.LookRotation(direccionHaciaJugador);
-        float anguloDiferencia = Quaternion.Angle(transform.rotation, rotacionHaciaJugador);
+        float anguloObjetivo = Mathf.Atan2(direccionHaciaJugador.x, direccionHaciaJugador.z) * Mathf.Rad2Deg;
+        float rotacionActual = transform.eulerAngles.y;
+        float nuevaRotacionY = Mathf.MoveTowardsAngle(rotacionActual, anguloObjetivo, velocidadRotacion * Time.deltaTime);
 
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, rotacionHaciaJugador, velocidadRotacion * Time.deltaTime);
+        transform.rotation = Quaternion.Euler(0, nuevaRotacionY, 0);
+        float anguloDiferencia = Mathf.Abs(Mathf.DeltaAngle(rotacionActual, anguloObjetivo));
 
         if (anguloDiferencia > 1f)
         {
             DetenerAnimaciones();
-            if (Vector3.Cross(transform.forward, direccionHaciaJugador).y > 0)
+            if (Mathf.DeltaAngle(rotacionActual, anguloObjetivo) > 0)
             {
                 animador.SetBool("enemigoRotarIzquierda", true);
             }
@@ -148,85 +148,103 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
         }
     }
 
+    private bool DentroDeLimite()
+    {
+        // Calcula la distancia entre la posición actual y el punto de inicio
+        float distanciaAlInicio = Vector3.Distance(transform.position, puntoInicio);
+
+        // Verifica si la siguiente posición estaría dentro del límite
+        Vector3 siguientePosicion = transform.position + transform.forward * velocidadMovimiento * Time.deltaTime;
+        float distanciaSiguiente = Vector3.Distance(siguientePosicion, puntoInicio);
+
+        // Retorna verdadero si la siguiente posición está dentro del límite establecido
+        return distanciaSiguiente <= distanciaMaxima;
+    }
+
     private void ManejarComportamientoPatrulla()
     {
+        if (haExplotado) return;  // Si ha explotado, no hacer nada
+
         if (enPausa)
         {
+            DetenerAnimaciones();
             animador.SetBool("enemigoQuieto", true);
-            animador.SetBool("enemigoCaminar", false);
-            animador.SetBool("enemigoRotarIzquierda", false);
-            animador.SetBool("enemigoRotarDerecha", false);
             return;
         }
 
-        Quaternion rotacionActual = transform.rotation;
-        transform.rotation = Quaternion.RotateTowards(rotacionActual, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
+        // El resto de la lógica sigue igual
+        float rotacionActual = transform.eulerAngles.y;
+        float nuevaRotacionY = Mathf.MoveTowardsAngle(rotacionActual, rotacionObjetivoY, velocidadRotacion * Time.deltaTime);
 
-        float anguloDiferencia = Quaternion.Angle(rotacionActual, rotacionObjetivo);
-        rotando = anguloDiferencia > 1f;
+        // Calcular la diferencia de ángulo antes de aplicar la rotación
+        float anguloDiferencia = Mathf.Abs(Mathf.DeltaAngle(rotacionActual, rotacionObjetivoY));
 
-        if (rotando)
+        // Actualizar la rotación
+        transform.rotation = Quaternion.Euler(0, nuevaRotacionY, 0);
+
+        // Si necesita rotar más de 10 grados, priorizar la rotación
+        if (anguloDiferencia > 10f)
         {
-            if (Vector3.Cross(transform.forward, direccionMovimiento).y > 0)
+            DetenerAnimaciones();
+            if (Mathf.DeltaAngle(rotacionActual, rotacionObjetivoY) > 0)
             {
                 animador.SetBool("enemigoRotarIzquierda", true);
-                animador.SetBool("enemigoRotarDerecha", false);
             }
             else
             {
-                animador.SetBool("enemigoRotarIzquierda", false);
                 animador.SetBool("enemigoRotarDerecha", true);
             }
-            animador.SetBool("enemigoCaminar", false);
         }
+        // Si la diferencia es menor a 10 grados, puede caminar mientras ajusta la rotación
         else
         {
-            animador.SetBool("enemigoRotarIzquierda", false);
-            animador.SetBool("enemigoRotarDerecha", false);
-            animador.SetBool("enemigoCaminar", direccionMovimiento != Vector3.zero);
-        }
-
-        if (!rotando && DentroDeLimite())
-        {
-            transform.Translate(Vector3.forward * velocidadMovimiento * Time.deltaTime);
-        }
-    }
-
-    private IEnumerator CambiarDireccionAleatoria()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(tiempoCambioDireccion);
-
-            if (!enPersecucion && !regresandoAInicio)
+            DetenerAnimaciones();
+            if (direccionMovimiento != Vector3.zero && DentroDeLimite())
             {
-                CambiarDireccion();
-                enPausa = true;
+                animador.SetBool("enemigoCaminar", true);
+                transform.Translate(Vector3.forward * velocidadMovimiento * Time.deltaTime);
+            }
+            else
+            {
                 animador.SetBool("enemigoQuieto", true);
-                yield return new WaitForSeconds(tiempoPausa);
-                enPausa = false;
-                animador.SetBool("enemigoQuieto", false);
             }
         }
     }
 
     private void CambiarDireccion()
     {
-        float x = Random.Range(-1f, 1f);
-        float z = Random.Range(-1f, 1f);
-        direccionMovimiento = new Vector3(x, 0, z).normalized;
+        float anguloAleatorio = Random.Range(0f, 360f);
+        rotacionObjetivoY = anguloAleatorio;
 
-        if (direccionMovimiento != Vector3.zero)
-        {
-            rotacionObjetivo = Quaternion.LookRotation(direccionMovimiento);
-        }
+        // Calcular la dirección de movimiento basada en el ángulo
+        float radianes = anguloAleatorio * Mathf.Deg2Rad;
+        direccionMovimiento = new Vector3(Mathf.Sin(radianes), 0, Mathf.Cos(radianes)).normalized;
     }
 
-    private bool DentroDeLimite()
+    private IEnumerator CambiarDireccionAleatoria()
     {
-        Vector3 distanciaDesdeInicio = transform.position - puntoInicio;
-        distanciaDesdeInicio.y = 0;
-        return distanciaDesdeInicio.magnitude <= distanciaMaxima;
+        while (true)
+        {
+            if (!enPersecucion && !regresandoAInicio)
+            {
+                // Primero hacer una pausa
+                DetenerAnimaciones();
+                enPausa = true;
+                animador.SetBool("enemigoQuieto", true);
+                yield return new WaitForSeconds(tiempoPausa);
+
+                // Luego cambiar dirección
+                CambiarDireccion();
+                enPausa = false;
+
+                // Esperar el tiempo de movimiento
+                yield return new WaitForSeconds(tiempoCambioDireccion);
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
     }
 
     private void DetenerAnimaciones()
@@ -237,4 +255,5 @@ public class ComportamientoGeneralEnemigos : MonoBehaviour
         animador.SetBool("enemigoRotarDerecha", false);
         animador.SetBool("enemigoCorriendo", false);
     }
+
 }
