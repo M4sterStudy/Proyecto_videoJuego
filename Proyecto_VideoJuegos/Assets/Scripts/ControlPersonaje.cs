@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -18,27 +19,27 @@ public class ControlPersonaje : MonoBehaviour
     public float runSpeed = 6f;
     public float jumpHeight = 1.5f;
     public float gravity = -9.81f;
+    private Vector3 velocity;
+    private bool isGrounded;
+    private Vector2 moveInput;
+    private bool jumpInput;
+    private bool isRunning;
 
     [Header("Estadisticas")]
     public int vidaActual;
     public int VidaMax = 100;
     public float energiaActual;
     public float energiaMax = 100;
-    public float tasaRegeneracion = 5f;
+    public float tasaRegeneracion = 5f;    
 
-    private Vector3 velocity;
-    private bool isGrounded;
-
-    // Variables del nuevo Input System
-    private Vector2 moveInput;
-    private bool jumpInput;
-    private bool isRunning;
-
+    [Header("Terceros")]
     private Player inputActions; // Clase generada por el Input System
+    private bool isInCofreRange = false;
+    private Collider cofreCollider;
+    
 
     private void Awake()
     {
-        // Inicializamos los bindings del Input System
         inputActions = new Player();
     }
 
@@ -47,14 +48,12 @@ public class ControlPersonaje : MonoBehaviour
         vidaActual = VidaMax;
         energiaActual = energiaMax;
 
-        // Inicializar las barras
         healthBar.fillAmount = (float)vidaActual / VidaMax;
         energyBar.fillAmount = energiaActual / energiaMax;
     }
 
     private void OnEnable()
     {
-        // Activamos los controles cuando se habilita el script
         inputActions.personaje.Enable();
 
         // Asignamos funciones para cuando el input ocurra
@@ -66,6 +65,8 @@ public class ControlPersonaje : MonoBehaviour
 
         inputActions.personaje.correr.performed += ctx => isRunning = true;
         inputActions.personaje.correr.canceled += ctx => isRunning = false;
+
+        inputActions.personaje.interactuar.performed += OnAccionPerformed;
     }
 
     private void OnDisable()
@@ -83,18 +84,14 @@ public class ControlPersonaje : MonoBehaviour
             velocity.y = -2f; // Asegura que el personaje se mantenga en el suelo
         }
 
-        // Determinamos la velocidad de movimiento basado en el estado de correr
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // Gasta energía al correr
         if (isRunning && energiaActual > 0)
         {
-            // Se gasta energía mientras corres
             energiaActual -= Time.deltaTime * 10; // Gasta 10 de energía por segundo al correr
         }
         else
         {
-            // Si no está corriendo o no hay energía, no se puede correr
             isRunning = false;
         }
         if (!isRunning && energiaActual < 100)
@@ -106,11 +103,9 @@ public class ControlPersonaje : MonoBehaviour
         Vector3 move = cameraTransform.TransformDirection(moveInput.x, 0, moveInput.y);
         move.y = 0; // Mantener el movimiento en el plano horizontal
 
-        // Movimiento lateral y hacia adelante
         Vector3 forwardMove = moveInput.y * transform.forward * currentSpeed;
         Vector3 lateralMove = moveInput.x * transform.right * currentSpeed;
 
-        // Solo rotar hacia adelante cuando el movimiento es hacia adelante
         if (moveInput.magnitude > 0)
         {
             // Si se mueve hacia adelante (moveInput.y > 0) o hacia atrás (no rotar al ir hacia atrás)
@@ -323,19 +318,66 @@ public class ControlPersonaje : MonoBehaviour
         }
         else if (other.CompareTag("Lava"))
         {
-            vidaActual = 0; // Vida a 0 al tocar "Lava"
+            vidaActual = 0; 
             Die();
             Debug.Log("¡Has caído en lava! Vida reducida a 0.");
         }
+        else if (other.CompareTag("cofre"))
+        {
+            isInCofreRange = true;
+            cofreCollider = other; // Almacenar el cofre en rango
+            Debug.Log("Cerca de un cofre. Presiona la tecla designada para abrir.");
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("cofre"))
+        {
+            // Detectar cuando el jugador sale del rango del cofre
+            isInCofreRange = false;
+            cofreCollider = null; // Eliminar la referencia al cofre
+            Debug.Log("Fuera del rango del cofre.");
+        }
+    }
+
+    private void OnAccionPerformed(InputAction.CallbackContext context)
+    {
+        // Solo ejecutar si el jugador está en rango de un cofre
+        if (isInCofreRange && cofreCollider != null)
+        {
+            StartCoroutine(OpenCofre());
+        }
+    }
+
+    private IEnumerator OpenCofre()
+    {
+        // Ejecutar animación de abrir cofre
+        animator.SetBool("abrirCofre", true);
+        Debug.Log("Abriendo cofre...");
+
+        // Esperar 2 segundos para simular la animación de abrir
+        yield return new WaitForSeconds(2f);
+        animator.SetBool("abrirCofre", false);
+
+        // Destruir el cofre después de la animación
+        if (cofreCollider != null)
+        {
+            Destroy(cofreCollider.gameObject); // Destruir el cofre que activó la colisión
+            Debug.Log("¡Cofre abierto y destruido!");
+        }
+
+        // Salir del rango del cofre
+        isInCofreRange = false;
+        cofreCollider = null;
     }
 
     public void TakeDamage(int damage)
     {
-        vidaActual -= damage; // Resta el daño de la salud actual
+        vidaActual -= damage; 
 
         if (vidaActual <= 0)
         {
-            Die(); // Llama a la función de morir si la salud es 0 o menos
+            Die(); 
         }
     }
 
@@ -343,7 +385,6 @@ public class ControlPersonaje : MonoBehaviour
     {
         vidaActual += healAmount; // Suma la cantidad de curación
 
-        // Asegúrate de que la salud no supere el máximo
         if (vidaActual > VidaMax)
         {
             vidaActual = VidaMax;
@@ -353,7 +394,6 @@ public class ControlPersonaje : MonoBehaviour
     private void Die()
     {
         Debug.Log("El personaje ha muerto.");
-        // Aquí puedes añadir lógica adicional al morir, como reproducir una animación, desactivar el objeto, etc.
         gameObject.SetActive(false); // Desactiva el objeto del jugador
     }
 
@@ -364,10 +404,7 @@ public class ControlPersonaje : MonoBehaviour
 
     private void UpdateUIBars()
     {
-        // Actualizamos la barra de vida con fillAmount
         healthBar.fillAmount = (float)vidaActual / VidaMax;
-
-        // Actualizamos la barra de energía con fillAmount
         energyBar.fillAmount = energiaActual / energiaMax;
     }
 

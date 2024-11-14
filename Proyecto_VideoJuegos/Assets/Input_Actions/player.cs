@@ -71,6 +71,15 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""interactuar"",
+                    ""type"": ""Button"",
+                    ""id"": ""6a44d385-4984-41e4-9cb7-e1b0cff3eee3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -227,6 +236,28 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""action"": ""esquivar"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""70a71cbb-9d2f-48e5-83b5-85c32f9fa3db"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""interactuar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""502233d3-1ea4-4170-aca9-108b77d50087"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""interactuar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -299,45 +330,6 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
-        },
-        {
-            ""name"": ""accion"",
-            ""id"": ""5db532b5-5f8b-4edb-9ced-1d539c776a15"",
-            ""actions"": [
-                {
-                    ""name"": ""cofre"",
-                    ""type"": ""Button"",
-                    ""id"": ""c4533378-5a65-4c47-9ed9-3fce3f58ffb0"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""1fbdaa5a-2650-4d4f-b2c9-6073cb108a14"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""cofre"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""8524c9a1-bfc9-4952-88c8-ac0c3922f9f7"",
-                    ""path"": ""<Gamepad>/buttonNorth"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""cofre"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
         }
     ],
     ""controlSchemes"": []
@@ -349,13 +341,11 @@ public partial class @Player: IInputActionCollection2, IDisposable
         m_personaje_correr = m_personaje.FindAction("correr", throwIfNotFound: true);
         m_personaje_camara = m_personaje.FindAction("camara", throwIfNotFound: true);
         m_personaje_esquivar = m_personaje.FindAction("esquivar", throwIfNotFound: true);
+        m_personaje_interactuar = m_personaje.FindAction("interactuar", throwIfNotFound: true);
         // combate
         m_combate = asset.FindActionMap("combate", throwIfNotFound: true);
         m_combate_HeavyAttack = m_combate.FindAction("HeavyAttack", throwIfNotFound: true);
         m_combate_LightAttack = m_combate.FindAction("LightAttack", throwIfNotFound: true);
-        // accion
-        m_accion = asset.FindActionMap("accion", throwIfNotFound: true);
-        m_accion_cofre = m_accion.FindAction("cofre", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -422,6 +412,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
     private readonly InputAction m_personaje_correr;
     private readonly InputAction m_personaje_camara;
     private readonly InputAction m_personaje_esquivar;
+    private readonly InputAction m_personaje_interactuar;
     public struct PersonajeActions
     {
         private @Player m_Wrapper;
@@ -431,6 +422,7 @@ public partial class @Player: IInputActionCollection2, IDisposable
         public InputAction @correr => m_Wrapper.m_personaje_correr;
         public InputAction @camara => m_Wrapper.m_personaje_camara;
         public InputAction @esquivar => m_Wrapper.m_personaje_esquivar;
+        public InputAction @interactuar => m_Wrapper.m_personaje_interactuar;
         public InputActionMap Get() { return m_Wrapper.m_personaje; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -455,6 +447,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @esquivar.started += instance.OnEsquivar;
             @esquivar.performed += instance.OnEsquivar;
             @esquivar.canceled += instance.OnEsquivar;
+            @interactuar.started += instance.OnInteractuar;
+            @interactuar.performed += instance.OnInteractuar;
+            @interactuar.canceled += instance.OnInteractuar;
         }
 
         private void UnregisterCallbacks(IPersonajeActions instance)
@@ -474,6 +469,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
             @esquivar.started -= instance.OnEsquivar;
             @esquivar.performed -= instance.OnEsquivar;
             @esquivar.canceled -= instance.OnEsquivar;
+            @interactuar.started -= instance.OnInteractuar;
+            @interactuar.performed -= instance.OnInteractuar;
+            @interactuar.canceled -= instance.OnInteractuar;
         }
 
         public void RemoveCallbacks(IPersonajeActions instance)
@@ -545,52 +543,6 @@ public partial class @Player: IInputActionCollection2, IDisposable
         }
     }
     public CombateActions @combate => new CombateActions(this);
-
-    // accion
-    private readonly InputActionMap m_accion;
-    private List<IAccionActions> m_AccionActionsCallbackInterfaces = new List<IAccionActions>();
-    private readonly InputAction m_accion_cofre;
-    public struct AccionActions
-    {
-        private @Player m_Wrapper;
-        public AccionActions(@Player wrapper) { m_Wrapper = wrapper; }
-        public InputAction @cofre => m_Wrapper.m_accion_cofre;
-        public InputActionMap Get() { return m_Wrapper.m_accion; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(AccionActions set) { return set.Get(); }
-        public void AddCallbacks(IAccionActions instance)
-        {
-            if (instance == null || m_Wrapper.m_AccionActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_AccionActionsCallbackInterfaces.Add(instance);
-            @cofre.started += instance.OnCofre;
-            @cofre.performed += instance.OnCofre;
-            @cofre.canceled += instance.OnCofre;
-        }
-
-        private void UnregisterCallbacks(IAccionActions instance)
-        {
-            @cofre.started -= instance.OnCofre;
-            @cofre.performed -= instance.OnCofre;
-            @cofre.canceled -= instance.OnCofre;
-        }
-
-        public void RemoveCallbacks(IAccionActions instance)
-        {
-            if (m_Wrapper.m_AccionActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        public void SetCallbacks(IAccionActions instance)
-        {
-            foreach (var item in m_Wrapper.m_AccionActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_AccionActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    public AccionActions @accion => new AccionActions(this);
     public interface IPersonajeActions
     {
         void OnMovimiento(InputAction.CallbackContext context);
@@ -598,14 +550,11 @@ public partial class @Player: IInputActionCollection2, IDisposable
         void OnCorrer(InputAction.CallbackContext context);
         void OnCamara(InputAction.CallbackContext context);
         void OnEsquivar(InputAction.CallbackContext context);
+        void OnInteractuar(InputAction.CallbackContext context);
     }
     public interface ICombateActions
     {
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnLightAttack(InputAction.CallbackContext context);
-    }
-    public interface IAccionActions
-    {
-        void OnCofre(InputAction.CallbackContext context);
     }
 }

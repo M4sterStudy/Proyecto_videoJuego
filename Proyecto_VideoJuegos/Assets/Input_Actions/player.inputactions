@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "interactuar",
+                    "type": "Button",
+                    "id": "6a44d385-4984-41e4-9cb7-e1b0cff3eee3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -205,6 +214,28 @@
                     "action": "esquivar",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "70a71cbb-9d2f-48e5-83b5-85c32f9fa3db",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "interactuar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "502233d3-1ea4-4170-aca9-108b77d50087",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "interactuar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -273,45 +304,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "accion",
-            "id": "5db532b5-5f8b-4edb-9ced-1d539c776a15",
-            "actions": [
-                {
-                    "name": "cofre",
-                    "type": "Button",
-                    "id": "c4533378-5a65-4c47-9ed9-3fce3f58ffb0",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "1fbdaa5a-2650-4d4f-b2c9-6073cb108a14",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "cofre",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8524c9a1-bfc9-4952-88c8-ac0c3922f9f7",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "cofre",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
