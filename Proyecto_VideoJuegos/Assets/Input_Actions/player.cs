@@ -299,6 +299,45 @@ public partial class @Player: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""accion"",
+            ""id"": ""5db532b5-5f8b-4edb-9ced-1d539c776a15"",
+            ""actions"": [
+                {
+                    ""name"": ""cofre"",
+                    ""type"": ""Button"",
+                    ""id"": ""c4533378-5a65-4c47-9ed9-3fce3f58ffb0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""1fbdaa5a-2650-4d4f-b2c9-6073cb108a14"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""cofre"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8524c9a1-bfc9-4952-88c8-ac0c3922f9f7"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""cofre"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -314,6 +353,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
         m_combate = asset.FindActionMap("combate", throwIfNotFound: true);
         m_combate_HeavyAttack = m_combate.FindAction("HeavyAttack", throwIfNotFound: true);
         m_combate_LightAttack = m_combate.FindAction("LightAttack", throwIfNotFound: true);
+        // accion
+        m_accion = asset.FindActionMap("accion", throwIfNotFound: true);
+        m_accion_cofre = m_accion.FindAction("cofre", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -503,6 +545,52 @@ public partial class @Player: IInputActionCollection2, IDisposable
         }
     }
     public CombateActions @combate => new CombateActions(this);
+
+    // accion
+    private readonly InputActionMap m_accion;
+    private List<IAccionActions> m_AccionActionsCallbackInterfaces = new List<IAccionActions>();
+    private readonly InputAction m_accion_cofre;
+    public struct AccionActions
+    {
+        private @Player m_Wrapper;
+        public AccionActions(@Player wrapper) { m_Wrapper = wrapper; }
+        public InputAction @cofre => m_Wrapper.m_accion_cofre;
+        public InputActionMap Get() { return m_Wrapper.m_accion; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(AccionActions set) { return set.Get(); }
+        public void AddCallbacks(IAccionActions instance)
+        {
+            if (instance == null || m_Wrapper.m_AccionActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_AccionActionsCallbackInterfaces.Add(instance);
+            @cofre.started += instance.OnCofre;
+            @cofre.performed += instance.OnCofre;
+            @cofre.canceled += instance.OnCofre;
+        }
+
+        private void UnregisterCallbacks(IAccionActions instance)
+        {
+            @cofre.started -= instance.OnCofre;
+            @cofre.performed -= instance.OnCofre;
+            @cofre.canceled -= instance.OnCofre;
+        }
+
+        public void RemoveCallbacks(IAccionActions instance)
+        {
+            if (m_Wrapper.m_AccionActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IAccionActions instance)
+        {
+            foreach (var item in m_Wrapper.m_AccionActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_AccionActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public AccionActions @accion => new AccionActions(this);
     public interface IPersonajeActions
     {
         void OnMovimiento(InputAction.CallbackContext context);
@@ -515,5 +603,9 @@ public partial class @Player: IInputActionCollection2, IDisposable
     {
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnLightAttack(InputAction.CallbackContext context);
+    }
+    public interface IAccionActions
+    {
+        void OnCofre(InputAction.CallbackContext context);
     }
 }

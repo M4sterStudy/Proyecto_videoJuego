@@ -12,6 +12,7 @@ TagManager:
   - PanelBrillo
   - Suelo
   - Lava
+  - cofre
   layers:
   - Default
   - TransparentFX
