@@ -299,13 +299,30 @@ public class ControlPersonaje : MonoBehaviour
     {
         if (isInCofreRange && cofreCollider != null)
         {
-            Animator cofreAnimator = cofreCollider.GetComponent<Animator>();
-            cofreAnimator.SetBool("AbrirCofre", true);
-            cofreCollider = null;
-            isInCofreRange = false;
-            cofreAnimator.SetBool("AbrirCofre", false);
-            Debug.Log("Cofre abierto.");
+            StartCoroutine(OpenCofre());
         }
+    }
+
+    private IEnumerator OpenCofre()
+    {
+        // Ejecutar animación de abrir cofre
+        animator.SetBool("abrirCofre", true);
+        Debug.Log("Abriendo cofre...");
+
+        // Esperar 2 segundos para simular la animación de abrir
+        yield return new WaitForSeconds(1.5f);
+        animator.SetBool("abrirCofre", false);
+
+        // Destruir el cofre después de la animación
+        if (cofreCollider != null)
+        {
+            Destroy(cofreCollider.gameObject); // Destruir el cofre que activó la colisión
+            Debug.Log("¡Cofre abierto y destruido!");
+        }
+
+        // Salir del rango del cofre
+        isInCofreRange = false;
+        cofreCollider = null;
     }
 
     private IEnumerator EnergiaInfinita()
