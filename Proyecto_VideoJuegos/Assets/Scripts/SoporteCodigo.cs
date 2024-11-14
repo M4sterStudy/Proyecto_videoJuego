@@ -91,7 +91,12 @@ public class SoporteCodigo : MonoBehaviour
             else
             {
                 Detenerse();
-                BuscarEnemigoCercano();
+
+                // Solo buscar enemigos si no estamos alineados o disparando
+                if (!enemigoDetectadoYAlineado && !estaDisparando)
+                {
+                    BuscarEnemigoCercano();
+                }
             }
         }
 
@@ -115,6 +120,10 @@ public class SoporteCodigo : MonoBehaviour
         estaGirandoHaciaEnemigo = false;
         enemigoDetectadoYAlineado = false;
         puedeDisparar = false;
+
+        // Reiniciar búsqueda de enemigos
+        enemigoActual = null;
+
         if (textoDeteccion != null)
         {
             textoDeteccion.text = "";
@@ -137,8 +146,8 @@ public class SoporteCodigo : MonoBehaviour
             }
         }
 
-        // Si encontramos un nuevo enemigo y no estamos girando ya
-        if (enemigoMasCercano != enemigoActual && !estaGirandoHaciaEnemigo)
+        // Si encontramos un nuevo enemigo o si el enemigo actual ya no está en el rango
+        if (enemigoMasCercano != enemigoActual || distanciaMasCorta > rangoDeteccionEnemigos)
         {
             enemigoActual = enemigoMasCercano;
             if (enemigoActual != null)
@@ -297,7 +306,11 @@ public class SoporteCodigo : MonoBehaviour
 
     private void Detenerse()
     {
-        ActivarAnimacion("quieto");
+        // Evita activar quieto si hay un enemigo alineado o se está disparando
+        if (!estaGirandoHaciaEnemigo && !enemigoDetectadoYAlineado && !estaDisparando)
+        {
+            ActivarAnimacion("quieto");
+        }
     }
 
     private void ActivarAnimacion(string nombreAnimacion)
