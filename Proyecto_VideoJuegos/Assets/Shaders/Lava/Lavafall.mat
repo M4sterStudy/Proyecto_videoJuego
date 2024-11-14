@@ -49,17 +49,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BottomPower: -45
+    - _BottomPower: 0
     - _Frenselpower: 0
     - _Metallic: 0
     - _NoiseAmount: 0.5
     - _NoiseScale: 30
-    - _Normal_Strength: 20
+    - _Normal_Strength: 0
     - _Power: 2
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Smoke_Int: 1
-    - _Smoothness: 100
+    - _Smoothness: 0
     - _VoronoiAO: 2
     - _VoronoiAmount: 0.05
     - _VoronoiScale: 5
